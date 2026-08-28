@@ -3,6 +3,7 @@
 #include "Arduino_LED_Matrix.h"
 #include "arduino_secrets.h" 
 #include "pages.h"
+#include "matrix.h"
 
 const int PORT = 80;
 char ssid[] = SECRET_SSID;        // your network SSID (name)
@@ -100,24 +101,8 @@ void loop() {
           response(client, uri);
           matrix.loadFrame(blankFrame);
         } else if(request.startsWith("POST")){
-          uint32_t frame[3] = {}; //Holds the hex values sent from the client;
-          String num = "";
-          int pointer = 1;
-          int i = 0;
-          while (pointer != uri.length() + 1) {
-            char c = uri.charAt(pointer);
-            if(c == '-' || pointer == uri.length()){
-              frame[i] = static_cast<uint32_t>(strtoul(num.c_str(), nullptr, 0));
-              Serial.println(num);
-              num = "";
-              i++;
-            } else {
-              num.concat(c);
-            }
-            pointer++;
-          }
-          matrix.loadFrame(frame);
-          server.println("");
+          matrix.loadFrame(matrixParser(uri).data());
+          server.println("{success: true}");
         }
         }
         break;
