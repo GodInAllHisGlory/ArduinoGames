@@ -1,4 +1,6 @@
-const char indexHtml[] = R"rawliteral(
+const char indexHtml[] = R"rawliteral(<h1><a href='/ArduinoStudio'>Arduino Studio</a></h1>)rawliteral";
+
+const char studioHtml[] = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
 <head>

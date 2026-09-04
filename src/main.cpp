@@ -8,10 +8,10 @@
 enum class OperatingMode : uint8_t{
   Studio,
   Snake,
-  Error
+  Wait
 };
 
-OperatingMode mode = OperatingMode::Studio;
+OperatingMode mode = OperatingMode::Wait;
 const int PORT = 80;
 char ssid[] = SECRET_SSID;        // your network SSID (name)
 char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
@@ -46,10 +46,16 @@ void printWifiStatus() {
 
 void response(WiFiClient client, String uri){
   const char* page;
-  if (uri == "/") {
+  if (uri == "/ArduinoStudio") {
+    page = studioHtml;
+    mode = OperatingMode::Studio;
+  } else if (uri == "/"){
     page = indexHtml;
+    mode = OperatingMode::Wait;
   } else {
-    page = indexHtml;
+    client.println("HTTP/1.1 404 Not Found");
+    mode = OperatingMode::Wait;
+    return;
   }
 
   client.println("HTTP/1.1 200 OK");
@@ -126,8 +132,10 @@ void loop() {
       break;
     
     default:
+      updateFrame = {0x0, 0x0, 0x0};
       break;
     }
+    
     matrix.loadFrame(updateFrame.data());
     }
 }
