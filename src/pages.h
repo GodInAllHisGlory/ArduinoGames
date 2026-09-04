@@ -46,7 +46,7 @@ const char indexHtml[] = R"rawliteral(
         }
         fetch(`${origin}/${uintArr.join('-')}`, {method:'POST'})
     }
-
+    
     let matrixIndex = 0;
     for(let i = 0; i < HEIGHT; i++){
         const row = document.createElement('div');
@@ -55,9 +55,9 @@ const char indexHtml[] = R"rawliteral(
             const led = document.createElement('div');
             led.className = "led";
             const ledIndex = matrixIndex;
-            led.addEventListener('mouseenter', () => {if(isDown){
-                led.style.backgroundColor = led.style.backgroundColor === 'red'? 'black' : 'red'}
-                matrixArray[ledIndex] = led.style.backgroundColor === 'red'? 1 : 0;
+            led.addEventListener('mouseleave', () => {if(isDown){
+              led.style.backgroundColor = led.style.backgroundColor === 'red'? 'black' : 'red'}
+              matrixArray[ledIndex] = led.style.backgroundColor === 'red'? 1 : 0;
             });
             matrixIndex++;
             row.append(led);

@@ -3,8 +3,15 @@
 #include "Arduino_LED_Matrix.h"
 #include "arduino_secrets.h" 
 #include "pages.h"
-#include "matrix.h"
+#include "studio.h"
 
+enum class OperatingMode : uint8_t{
+  Studio,
+  Snake,
+  Error
+};
+
+OperatingMode mode = OperatingMode::Studio;
 const int PORT = 80;
 char ssid[] = SECRET_SSID;        // your network SSID (name)
 char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
@@ -15,6 +22,7 @@ WiFiServer server(PORT);
 
 ArduinoLEDMatrix matrix;
 const uint32_t blankFrame[] = {0x0,0x0,0x0};
+std::array<uint32_t, 3> updateFrame;
 
 void printWifiStatus() {
   // print the SSID of the network you're attached to:
@@ -83,6 +91,7 @@ void setup() {
 
 
 void loop() {
+  String update = "";
   WiFiClient client = server.available();   // listen for incoming clients
 
   if (client) {                             // if you get a client,
@@ -93,6 +102,7 @@ void loop() {
       request += c;
       c = client.read(); 
     }  
+
     Serial.println(request);
     while (client.connected()) {
       if (client.available()) {
@@ -101,7 +111,7 @@ void loop() {
           response(client, uri);
           matrix.loadFrame(blankFrame);
         } else if(request.startsWith("POST")){
-          matrix.loadFrame(matrixParser(uri).data());
+          update = uri;
           server.println("{success: true}");
         }
         }
@@ -109,5 +119,15 @@ void loop() {
       }
     client.stop();
     Serial.println("client disconnected");
+    
+    switch (mode) {
+    case OperatingMode::Studio:
+      updateFrame = arduinoStudio(update);
+      break;
+    
+    default:
+      break;
+    }
+    matrix.loadFrame(updateFrame.data());
     }
 }
